@@ -1,0 +1,64 @@
+from contextlib import asynccontextmanager
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from slowapi.errors import RateLimitExceeded
+from app.config import settings
+from app.database import engine, Base
+from app.middleware.rate_limiter import limiter, rate_limit_exceeded_handler
+from app.routers import personeros, ubicacion, admin
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Crear tablas al iniciar (para desarrollo; en producción usar migraciones)
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
+    yield
+    await engine.dispose()
+
+
+app = FastAPI(
+    title="Peruanos por el Cambio — API",
+    description="Plataforma de registro de personeros electorales",
+    version="1.0.0",
+    docs_url="/docs" if settings.DEBUG else None,
+    redoc_url=None,
+    lifespan=lifespan,
+)
+
+# Rate limiter
+app.state.limiter = limiter
+app.add_exception_handler(RateLimitExceeded, rate_limit_exceeded_handler)
+
+# CORS
+allowed_origins = [o.strip() for o in settings.ALLOWED_ORIGINS.split(",")]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allowed_origins,
+    allow_credentials=False,
+    allow_methods=["GET", "POST"],
+    allow_headers=["*"],
+)
+
+
+@app.middleware("http")
+async def security_headers_middleware(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-XSS-Protection"] = "1; mode=block"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"] = "geolocation=(), microphone=(), camera=()"
+    return response
+
+
+# Routers
+app.include_router(personeros.router, prefix="/api/v1")
+app.include_router(ubicacion.router, prefix="/api/v1")
+app.include_router(admin.router, prefix="/api/v1")
+
+
+@app.get("/health", tags=["health"])
+async def health_check():
+    return {"status": "ok", "version": "1.0.0"}
