@@ -3,11 +3,10 @@ from slowapi.util import get_remote_address
 from slowapi.errors import RateLimitExceeded
 from fastapi import Request
 from fastapi.responses import JSONResponse
-from app.config import settings
 
+# Sin Redis — almacenamiento en memoria (suficiente para instancia única en Railway)
 limiter = Limiter(
     key_func=get_remote_address,
-    storage_uri=settings.REDIS_URL,
     default_limits=["200/minute"],
 )
 

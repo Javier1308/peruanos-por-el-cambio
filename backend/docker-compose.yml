@@ -1,5 +1,8 @@
 version: "3.9"
 
+# Docker Compose para desarrollo local
+# La BD usa Supabase (remota) — configura DATABASE_URL en .env
+
 services:
   api:
     build: .
@@ -7,39 +10,7 @@ services:
       - "8000:8000"
     env_file: .env
     environment:
-      - DATABASE_URL=postgresql+asyncpg://peruanos:peruanos@db:5432/peruanos
-      - REDIS_URL=redis://redis:6379
       - DEBUG=true
-    depends_on:
-      db:
-        condition: service_healthy
-      redis:
-        condition: service_started
     volumes:
       - .:/app
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
-
-  db:
-    image: postgres:15-alpine
-    environment:
-      POSTGRES_DB: peruanos
-      POSTGRES_USER: peruanos
-      POSTGRES_PASSWORD: peruanos
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U peruanos"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
-
-  redis:
-    image: redis:7-alpine
-    ports:
-      - "6379:6379"
-    command: redis-server --save "" --appendonly no
-
-volumes:
-  postgres_data:

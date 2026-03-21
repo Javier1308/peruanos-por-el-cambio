@@ -3,8 +3,7 @@ from functools import lru_cache
 
 
 class Settings(BaseSettings):
-    DATABASE_URL: str = "postgresql+asyncpg://user:password@localhost:5432/peruanos"
-    REDIS_URL: str = "redis://localhost:6379"
+    DATABASE_URL: str = "postgresql+asyncpg://postgres:password@db.xxxx.supabase.co:5432/postgres"
     TURNSTILE_SECRET_KEY: str = "1x0000000000000000000000000000000AA"
     ADMIN_API_KEY: str = "change-this-in-production"
     ALLOWED_ORIGINS: str = "http://localhost:5173"

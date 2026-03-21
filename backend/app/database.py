@@ -8,6 +8,9 @@ engine = create_async_engine(
     max_overflow=40,
     pool_pre_ping=True,
     echo=settings.DEBUG,
+    # Requerido para el connection pooler de Supabase (Supavisor)
+    # Deshabilita prepared statements que no soporta el pooler en modo transaction
+    connect_args={"statement_cache_size": 0},
 )
 
 async_session_maker = async_sessionmaker(
