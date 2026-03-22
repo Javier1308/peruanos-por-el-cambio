@@ -24,7 +24,7 @@ export interface PersoneroFormData {
   provincia: string
   provincia_id: string
   distrito: string
-  local_votacion: string
+  local_votacion?: string
   turnstile_token: string
 }
 

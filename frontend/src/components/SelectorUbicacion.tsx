@@ -1,10 +1,16 @@
 import type { UseFormRegister, FieldErrors } from 'react-hook-form'
-import type { PersoneroFormData } from '../types/personero'
 import { useUbicacion } from '../hooks/useUbicacion'
 
+type UbicacionFields = {
+  departamento: string
+  provincia: string
+  distrito: string
+  [key: string]: unknown
+}
+
 interface SelectorUbicacionProps {
-  register: UseFormRegister<PersoneroFormData>
-  errors: FieldErrors<PersoneroFormData>
+  register: UseFormRegister<UbicacionFields>
+  errors: FieldErrors<UbicacionFields>
   onDepartamentoChange: (id: string, nombre: string) => void
   onProvinciaChange: (id: string, nombre: string) => void
   onDistritoChange: (nombre: string) => void
