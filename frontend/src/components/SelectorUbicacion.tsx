@@ -77,7 +77,7 @@ export function SelectorUbicacion({
         required
         loading={loadingDept}
         placeholder="Selecciona tu departamento"
-        error={errors.departamento?.message}
+        error={errors.departamento?.message as string | undefined}
         {...register('departamento')}
         onChange={(e) => {
           const selected = departamentos.find((d) => d.nombre === e.target.value)
@@ -104,7 +104,7 @@ export function SelectorUbicacion({
         disabled={!selectedDeptId}
         loading={loadingProv}
         placeholder={selectedDeptId ? 'Selecciona tu provincia' : 'Primero selecciona departamento'}
-        error={errors.provincia?.message}
+        error={errors.provincia?.message as string | undefined}
         {...register('provincia')}
         onChange={(e) => {
           const selected = provincias.find((p) => p.nombre === e.target.value)
@@ -135,7 +135,7 @@ export function SelectorUbicacion({
             ? 'Selecciona tu provincia primero'
             : 'Selecciona tu distrito'
         }
-        error={errors.distrito?.message}
+        error={errors.distrito?.message as string | undefined}
         {...register('distrito')}
         onChange={(e) => {
           onDistritoChange(e.target.value)
