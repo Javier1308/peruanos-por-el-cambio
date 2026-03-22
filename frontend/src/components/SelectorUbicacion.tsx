@@ -1,16 +1,12 @@
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 import type { UseFormRegister, FieldErrors } from 'react-hook-form'
 import { useUbicacion } from '../hooks/useUbicacion'
 
-type UbicacionFields = {
-  departamento: string
-  provincia: string
-  distrito: string
-  [key: string]: unknown
-}
-
 interface SelectorUbicacionProps {
-  register: UseFormRegister<UbicacionFields>
-  errors: FieldErrors<UbicacionFields>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  register: UseFormRegister<any>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  errors: FieldErrors<any>
   onDepartamentoChange: (id: string, nombre: string) => void
   onProvinciaChange: (id: string, nombre: string) => void
   onDistritoChange: (nombre: string) => void
