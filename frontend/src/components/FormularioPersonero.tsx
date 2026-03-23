@@ -44,7 +44,7 @@ const REQUIRED_FIELDS: (keyof FormData)[] = [
 ]
 
 interface SuccessState {
-  id: number
+  codigo_registro: string
   nombres: string
   apellidos: string
 }
@@ -129,7 +129,7 @@ export function FormularioPersonero() {
         turnstile_token: data.turnstile_token,
       })
       setSuccess({
-        id: response.id,
+        codigo_registro: response.codigo_registro,
         nombres: response.nombres,
         apellidos: response.apellidos,
       })
@@ -155,8 +155,8 @@ export function FormularioPersonero() {
         <p className="text-gray-600 mb-4">
           <strong>{success.nombres} {success.apellidos}</strong>, tu inscripción fue registrada correctamente.
         </p>
-        <div className="inline-block bg-brand-navy text-white px-6 py-3 rounded-lg font-semibold text-lg">
-          N.° de registro: #{success.id.toString().padStart(6, '0')}
+        <div className="inline-block bg-brand-navy text-white px-6 py-3 rounded-lg font-mono text-sm tracking-wide">
+          {success.codigo_registro.toUpperCase()}
         </div>
         <p className="mt-6 text-sm text-gray-500">
           Guarda este número. Te contactaremos con más información sobre tus funciones como personero.

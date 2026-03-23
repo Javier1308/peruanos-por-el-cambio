@@ -1,6 +1,7 @@
 from pydantic import BaseModel, EmailStr, field_validator, model_validator
 from datetime import datetime
 from typing import Optional
+from uuid import UUID
 import re
 
 
@@ -66,6 +67,7 @@ class PersoneroCreate(BaseModel):
 
 class PersoneroResponse(BaseModel):
     id: int
+    codigo_registro: UUID
     nombres: str
     apellidos: str
     dni: str

@@ -30,6 +30,7 @@ export interface PersoneroFormData {
 
 export interface PersoneroResponse {
   id: number
+  codigo_registro: string
   nombres: string
   apellidos: string
   dni: string
