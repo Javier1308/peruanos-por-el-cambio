@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, forwardRef } from 'react'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
@@ -48,19 +48,15 @@ interface SuccessState {
   apellidos: string
 }
 
-function InputField({
-  label,
-  id,
-  error,
-  required,
-  hint,
-  ...props
-}: React.InputHTMLAttributes<HTMLInputElement> & {
-  label: string
-  error?: string
-  required?: boolean
-  hint?: string
-}) {
+const InputField = forwardRef<
+  HTMLInputElement,
+  React.InputHTMLAttributes<HTMLInputElement> & {
+    label: string
+    error?: string
+    required?: boolean
+    hint?: string
+  }
+>(function InputField({ label, id, error, required, hint, ...props }, ref) {
   return (
     <div>
       <label htmlFor={id} className="block text-sm font-medium text-gray-700 mb-1">
@@ -68,6 +64,7 @@ function InputField({
       </label>
       <input
         id={id}
+        ref={ref}
         className={`w-full px-4 py-3 border rounded-lg text-gray-900 placeholder-gray-400 transition-colors focus:outline-none focus:ring-2 focus:ring-brand-red focus:border-transparent ${
           error ? 'border-red-500 bg-red-50' : 'border-gray-300 hover:border-gray-400 bg-white'
         }`}
@@ -77,7 +74,7 @@ function InputField({
       {error && <p className="mt-1 text-sm text-red-600">{error}</p>}
     </div>
   )
-}
+})
 
 export function FormularioPersonero() {
   const [success, setSuccess] = useState<SuccessState | null>(null)

@@ -7,7 +7,7 @@ interface CaptchaWidgetProps {
 }
 
 export function CaptchaWidget({ onSuccess, onExpire, onError }: CaptchaWidgetProps) {
-  const siteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY || '1x00000000000000000000AA'
+  const siteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY
 
   return (
     <div className="flex justify-center">
