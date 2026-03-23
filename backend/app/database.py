@@ -1,15 +1,12 @@
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession, async_sessionmaker
 from sqlalchemy.orm import DeclarativeBase
+from sqlalchemy.pool import NullPool
 from app.config import settings
 
 engine = create_async_engine(
     settings.DATABASE_URL,
-    pool_size=10,
-    max_overflow=40,
-    pool_pre_ping=True,
+    poolclass=NullPool,
     echo=settings.DEBUG,
-    # Requerido para el connection pooler de Supabase (Supavisor)
-    # Deshabilita prepared statements que no soporta el pooler en modo transaction
     connect_args={"statement_cache_size": 0},
 )
 
