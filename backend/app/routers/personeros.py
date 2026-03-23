@@ -27,7 +27,7 @@ async def registrar_personero(
     # 2. Validar DNI con algoritmo local
     dni_result = validate_dni_local(data.dni)
     if dni_result.get("reason") == "suspicious":
-        raise HTTPException(status_code=422, detail=dni_result["message"])
+        raise HTTPException(status_code=422, detail="El DNI ingresado no es válido. Verifica el número e intenta nuevamente.")
 
     # 3. Verificar DNI duplicado
     result = await db.execute(select(Personero).where(Personero.dni == data.dni))
@@ -69,8 +69,9 @@ async def validar_dni(
     existing = await db.execute(select(Personero).where(Personero.dni == data.dni))
     duplicado = existing.scalar_one_or_none() is not None
 
+    message = "DNI válido" if result["valid"] else "El DNI ingresado no es válido."
     return DniValidateResponse(
         valid=result["valid"],
         duplicado=duplicado,
-        message=result["message"],
+        message=message,
     )
