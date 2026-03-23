@@ -7,8 +7,6 @@ class Settings(BaseSettings):
     TURNSTILE_SECRET_KEY: str = "1x0000000000000000000000000000000AA"
     ADMIN_API_KEY: str = "change-this-in-production"
     ALLOWED_ORIGINS: str = "http://localhost:5173"
-    DNI_API_URL: str = "https://api.apis.net.pe/v2/reniec/dni"
-    DNI_API_TOKEN: str = ""
     DEBUG: bool = False
 
     model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8")
