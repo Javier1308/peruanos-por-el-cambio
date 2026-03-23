@@ -27,17 +27,18 @@ async def validate_dni(dni: str) -> dict:
                 data = response.json()
                 return {
                     "valid": True,
+                    "reason": "found",
                     "nombres": data.get("nombres", ""),
                     "apellido_paterno": data.get("apellidoPaterno", ""),
                     "apellido_materno": data.get("apellidoMaterno", ""),
                 }
 
             if response.status_code == 404:
-                return {"valid": False, "message": "DNI no encontrado en RENIEC"}
+                return {"valid": False, "reason": "not_found", "message": "DNI no encontrado en RENIEC"}
 
     except httpx.TimeoutException:
-        return {"valid": False, "message": "Timeout al consultar API de DNI"}
+        return {"valid": False, "reason": "api_error", "message": "Timeout al consultar API de DNI"}
     except Exception:
         pass
 
-    return {"valid": False, "message": "Error al consultar API de DNI"}
+    return {"valid": False, "reason": "api_error", "message": "Error al consultar API de DNI"}

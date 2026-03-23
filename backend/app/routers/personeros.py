@@ -29,8 +29,10 @@ async def registrar_personero(
     if result.scalar_one_or_none():
         raise HTTPException(status_code=409, detail="Ya existe un registro con este DNI.")
 
-    # 3. Validar DNI contra API externa (sin bloquear el registro)
+    # 3. Validar DNI contra API externa
     dni_result = await validate_dni(data.dni)
+    if dni_result.get("reason") == "not_found":
+        raise HTTPException(status_code=422, detail="El DNI ingresado no existe en RENIEC. Verifica el número e intenta nuevamente.")
     dni_verificado = dni_result.get("valid", False)
 
     # 4. Crear personero
