@@ -4,16 +4,13 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from slowapi.errors import RateLimitExceeded
 from app.config import settings
-from app.database import engine, Base
+from app.database import engine
 from app.middleware.rate_limiter import limiter, rate_limit_exceeded_handler
 from app.routers import personeros, ubicacion, admin
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Crear tablas al iniciar (para desarrollo; en producción usar migraciones)
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
     yield
     await engine.dispose()
 
