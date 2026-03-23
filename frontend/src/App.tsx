@@ -210,7 +210,7 @@ export default function App() {
               <p className="text-blue-300 text-xs sm:text-sm mt-1">Departamentos</p>
             </div>
             <div>
-              <p className="text-2xl sm:text-3xl font-bold text-red-400">200k+</p>
+              <p className="text-2xl sm:text-3xl font-bold text-red-400">90,000</p>
               <p className="text-blue-300 text-xs sm:text-sm mt-1">Meta de personeros</p>
             </div>
             <div>
