@@ -1,9 +1,11 @@
-import { useState, useCallback, forwardRef } from 'react'
+import { useState, useCallback, forwardRef, useRef } from 'react'
+import type { TurnstileInstance } from '@marsidev/react-turnstile'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { SelectorUbicacion } from './SelectorUbicacion'
 import { CaptchaWidget } from './CaptchaWidget'
+import axios from 'axios'
 import { registrarPersonero, getErrorMessage } from '../services/api'
 import type { PersoneroResponse } from '../types/personero'
 
@@ -80,6 +82,7 @@ export function FormularioPersonero() {
   const [success, setSuccess] = useState<SuccessState | null>(null)
   const [submitError, setSubmitError] = useState('')
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const captchaRef = useRef<TurnstileInstance>(null)
 
   const {
     register,
@@ -133,6 +136,11 @@ export function FormularioPersonero() {
       })
     } catch (err) {
       setSubmitError(getErrorMessage(err))
+      // Resetear Turnstile en errores que invalidan el token
+      if (axios.isAxiosError(err) && (err.response?.status === 403 || err.response?.status === 429)) {
+        captchaRef.current?.reset()
+        setValue('turnstile_token', '')
+      }
     } finally {
       setIsSubmitting(false)
     }
@@ -283,6 +291,7 @@ export function FormularioPersonero() {
           Verificación de seguridad
         </legend>
         <CaptchaWidget
+          ref={captchaRef}
           onSuccess={handleCaptchaSuccess}
           onExpire={handleCaptchaExpire}
           onError={handleCaptchaExpire}

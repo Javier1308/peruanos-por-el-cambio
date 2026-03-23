@@ -1,4 +1,5 @@
-import { Turnstile } from '@marsidev/react-turnstile'
+import { forwardRef } from 'react'
+import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile'
 
 interface CaptchaWidgetProps {
   onSuccess: (token: string) => void
@@ -6,21 +7,24 @@ interface CaptchaWidgetProps {
   onError: () => void
 }
 
-export function CaptchaWidget({ onSuccess, onExpire, onError }: CaptchaWidgetProps) {
-  const siteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY || '1x00000000000000000000AA'
+export const CaptchaWidget = forwardRef<TurnstileInstance, CaptchaWidgetProps>(
+  function CaptchaWidget({ onSuccess, onExpire, onError }, ref) {
+    const siteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY || '1x00000000000000000000AA'
 
-  return (
-    <div className="flex justify-center">
-      <Turnstile
-        siteKey={siteKey}
-        onSuccess={onSuccess}
-        onExpire={onExpire}
-        onError={onError}
-        options={{
-          theme: 'light',
-          language: 'es',
-        }}
-      />
-    </div>
-  )
-}
+    return (
+      <div className="flex justify-center">
+        <Turnstile
+          ref={ref}
+          siteKey={siteKey}
+          onSuccess={onSuccess}
+          onExpire={onExpire}
+          onError={onError}
+          options={{
+            theme: 'light',
+            language: 'es',
+          }}
+        />
+      </div>
+    )
+  }
+)

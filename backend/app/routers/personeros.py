@@ -12,7 +12,7 @@ router = APIRouter(tags=["personeros"])
 
 
 @router.post("/personeros", response_model=PersoneroResponse, status_code=201)
-@limiter.limit("3/10 minutes")
+@limiter.limit("5/10 minutes")
 async def registrar_personero(
     request: Request,
     data: PersoneroCreate,
