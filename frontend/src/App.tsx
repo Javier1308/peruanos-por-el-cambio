@@ -19,7 +19,7 @@ export default function App() {
           <div className="flex items-center gap-3">
             <PeruFlag />
             <div>
-              <p className="text-white font-bold text-base leading-tight">Peruanos por el Cambio</p>
+              <p className="text-white font-bold text-base leading-tight">Defiende Tu Voto</p>
               <p className="text-blue-300 text-xs">Vigilancia electoral ciudadana</p>
             </div>
           </div>
@@ -226,7 +226,7 @@ export default function App() {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 text-center text-sm">
           <div className="flex items-center justify-center gap-2 mb-3">
             <PeruFlag />
-            <span className="text-white font-semibold">Peruanos por el Cambio</span>
+            <span className="text-white font-semibold">Defiende Tu Voto</span>
           </div>
           <p>
             Plataforma de registro de personeros electorales. Todos los derechos reservados © 2026.
