@@ -109,9 +109,7 @@ class DniValidateRequest(BaseModel):
 
 class DniValidateResponse(BaseModel):
     valid: bool
-    nombres: Optional[str] = None
-    apellido_paterno: Optional[str] = None
-    apellido_materno: Optional[str] = None
+    duplicado: bool = False
     message: Optional[str] = None
 
 

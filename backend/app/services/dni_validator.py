@@ -1,50 +1,84 @@
-import httpx
-from app.config import settings
+from collections import Counter
 
 
-async def validate_dni(dni: str) -> dict:
+def validate_dni_local(dni: str) -> dict:
     """
-    Valida un DNI contra la API de apis.net.pe.
-    Retorna dict con: valid, nombres, apellido_paterno, apellido_materno.
-    Si la API no responde, retorna valid=False para permitir el registro
-    sin verificación.
+    Valida un DNI peruano con reglas heurísticas locales.
+    No consulta APIs externas.
+
+    Retorna dict con:
+      - valid: bool
+      - reason: "suspicious" | "format_ok"
+      - message: descripción del resultado
     """
-    if not settings.DNI_API_TOKEN:
-        return {"valid": False, "message": "API token no configurado"}
+    # 1. Todos los dígitos iguales: 00000000, 11111111, 99999999
+    if len(set(dni)) == 1:
+        return {
+            "valid": False,
+            "reason": "suspicious",
+            "message": "DNI inválido: todos los dígitos son iguales",
+        }
 
-    try:
-        async with httpx.AsyncClient(timeout=5.0) as client:
-            response = await client.get(
-                "https://api.decolecta.com/v1/reniec/dni",
-                params={"numero": dni},
-                headers={
-                    "Authorization": f"Bearer {settings.DNI_API_TOKEN}",
-                    "Referer": "python-decolecta",
-                },
-            )
+    digits = [int(d) for d in dni]
+    diffs = [digits[i + 1] - digits[i] for i in range(7)]
 
-            if response.status_code == 200:
-                data = response.json()
-                return {
-                    "valid": True,
-                    "reason": "found",
-                    "nombres": data.get("nombres", ""),
-                    "apellido_paterno": data.get("apellidoPaterno", ""),
-                    "apellido_materno": data.get("apellidoMaterno", ""),
-                }
+    # 2. Secuencia ascendente estricta: 12345678, 23456789
+    if all(d == 1 for d in diffs):
+        return {
+            "valid": False,
+            "reason": "suspicious",
+            "message": "DNI inválido: secuencia ascendente consecutiva",
+        }
 
-            if response.status_code in (404, 422):
-                return {"valid": False, "reason": "not_found", "message": "DNI no encontrado en RENIEC"}
+    # 3. Secuencia descendente estricta: 98765432, 87654321
+    if all(d == -1 for d in diffs):
+        return {
+            "valid": False,
+            "reason": "suspicious",
+            "message": "DNI inválido: secuencia descendente consecutiva",
+        }
 
-            if response.status_code == 401:
-                return {"valid": False, "reason": "api_error", "message": "Token de API inválido"}
+    # 4. Primera mitad repetida en segunda mitad: 12341234, 56785678
+    if dni[:4] == dni[4:]:
+        return {
+            "valid": False,
+            "reason": "suspicious",
+            "message": "DNI inválido: patrón repetido (ABCDABCD)",
+        }
 
-            if response.status_code == 429:
-                return {"valid": False, "reason": "api_error", "message": "Límite de consultas alcanzado"}
+    # 5. Par alternado: 12121212, 34343434, 56565656
+    pares = len(set(dni[i] for i in range(0, 8, 2))) == 1
+    impares = len(set(dni[i] for i in range(1, 8, 2))) == 1
+    if pares and impares and dni[0] != dni[1]:
+        return {
+            "valid": False,
+            "reason": "suspicious",
+            "message": "DNI inválido: patrón alternado (ABABABAB)",
+        }
 
-    except httpx.TimeoutException:
-        return {"valid": False, "reason": "api_error", "message": "Timeout al consultar API de DNI"}
-    except Exception:
-        pass
+    # 6. Demasiados dígitos iguales (6 o más del mismo dígito)
+    if max(Counter(dni).values()) >= 6:
+        return {
+            "valid": False,
+            "reason": "suspicious",
+            "message": "DNI inválido: demasiados dígitos repetidos",
+        }
 
-    return {"valid": False, "reason": "api_error", "message": "Error al consultar API de DNI"}
+    # 7. Rango numérico inválido
+    #    - Mínimo: 1,000,000 (por debajo son números no emitidos o de prueba)
+    #    - Máximo: 87,000,000 (estimado de DNIs emitidos en Perú a 2026)
+    num = int(dni)
+    if num < 1_000_000:
+        return {
+            "valid": False,
+            "reason": "suspicious",
+            "message": "DNI inválido: número por debajo del rango emitido",
+        }
+    if num > 87_000_000:
+        return {
+            "valid": False,
+            "reason": "suspicious",
+            "message": "DNI inválido: número por encima del rango emitido",
+        }
+
+    return {"valid": True, "reason": "format_ok", "message": "DNI con formato válido"}

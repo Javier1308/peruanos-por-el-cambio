@@ -42,9 +42,7 @@ export async function registrarPersonero(payload: RegistroPayload): Promise<Pers
 
 export async function validarDni(dni: string): Promise<{
   valid: boolean
-  nombres?: string
-  apellido_paterno?: string
-  apellido_materno?: string
+  duplicado: boolean
   message?: string
 }> {
   const { data } = await api.post('/api/v1/validar-dni', { dni })

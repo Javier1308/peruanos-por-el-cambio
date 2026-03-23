@@ -5,7 +5,7 @@ from app.database import get_db
 from app.models.personero import Personero
 from app.schemas.personero import PersoneroCreate, PersoneroResponse, DniValidateRequest, DniValidateResponse
 from app.services.turnstile import verify_turnstile
-from app.services.dni_validator import validate_dni
+from app.services.dni_validator import validate_dni_local
 from app.middleware.rate_limiter import limiter
 
 router = APIRouter(tags=["personeros"])
@@ -24,16 +24,15 @@ async def registrar_personero(
     if not turnstile_ok:
         raise HTTPException(status_code=403, detail="Verificación de seguridad fallida. Recarga la página e intenta nuevamente.")
 
-    # 2. Verificar DNI duplicado
+    # 2. Validar DNI con algoritmo local
+    dni_result = validate_dni_local(data.dni)
+    if dni_result.get("reason") == "suspicious":
+        raise HTTPException(status_code=422, detail=dni_result["message"])
+
+    # 3. Verificar DNI duplicado
     result = await db.execute(select(Personero).where(Personero.dni == data.dni))
     if result.scalar_one_or_none():
         raise HTTPException(status_code=409, detail="Ya existe un registro con este DNI.")
-
-    # 3. Validar DNI contra API externa
-    dni_result = await validate_dni(data.dni)
-    if dni_result.get("reason") == "not_found":
-        raise HTTPException(status_code=422, detail="El DNI ingresado no existe en RENIEC. Verifica el número e intenta nuevamente.")
-    dni_verificado = dni_result.get("valid", False)
 
     # 4. Crear personero
     personero = Personero(
@@ -46,7 +45,7 @@ async def registrar_personero(
         provincia=data.provincia,
         distrito=data.distrito,
         local_votacion=data.local_votacion,
-        dni_verificado=dni_verificado,
+        dni_verificado=dni_result.get("valid", False),
         ip_registro=ip,
     )
 
@@ -61,6 +60,17 @@ async def registrar_personero(
 async def validar_dni(
     request: Request,
     data: DniValidateRequest,
+    db: AsyncSession = Depends(get_db),
 ):
-    result = await validate_dni(data.dni)
-    return DniValidateResponse(**result)
+    # 1. Validar formato y patrones sospechosos
+    result = validate_dni_local(data.dni)
+
+    # 2. Comprobar si ya existe en la BD
+    existing = await db.execute(select(Personero).where(Personero.dni == data.dni))
+    duplicado = existing.scalar_one_or_none() is not None
+
+    return DniValidateResponse(
+        valid=result["valid"],
+        duplicado=duplicado,
+        message=result["message"],
+    )
