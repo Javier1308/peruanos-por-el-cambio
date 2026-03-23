@@ -5,7 +5,6 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { SelectorUbicacion } from './SelectorUbicacion'
 import { CaptchaWidget } from './CaptchaWidget'
-import axios from 'axios'
 import { registrarPersonero, getErrorMessage } from '../services/api'
 import type { PersoneroResponse } from '../types/personero'
 
@@ -136,11 +135,9 @@ export function FormularioPersonero() {
       })
     } catch (err) {
       setSubmitError(getErrorMessage(err))
-      // Resetear Turnstile en errores que invalidan el token
-      if (axios.isAxiosError(err) && (err.response?.status === 403 || err.response?.status === 429)) {
-        captchaRef.current?.reset()
-        setValue('turnstile_token', '')
-      }
+      // El token de Turnstile se consume en cada request — siempre resetear
+      captchaRef.current?.reset()
+      setValue('turnstile_token', '')
     } finally {
       setIsSubmitting(false)
     }
