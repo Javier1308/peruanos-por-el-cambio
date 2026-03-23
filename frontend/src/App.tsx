@@ -75,6 +75,22 @@ export default function App() {
         </div>
       </section>
 
+      {/* Form Section */}
+      <section id="inscripcion" className="max-w-2xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
+        <div className="text-center mb-8">
+          <h2 className="text-2xl sm:text-3xl font-bold text-brand-navy mb-2">
+            Formulario de inscripción
+          </h2>
+          <p className="text-gray-500 text-sm">
+            Completa todos los campos con tus datos reales. La información es confidencial.
+          </p>
+        </div>
+
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8">
+          <FormularioPersonero />
+        </div>
+      </section>
+
       {/* Nosotros Section */}
       <section id="nosotros" className="bg-white">
         {/* Quiénes somos */}
@@ -182,22 +198,6 @@ export default function App() {
               </p>
             </div>
           </div>
-        </div>
-      </section>
-
-      {/* Form Section */}
-      <section id="inscripcion" className="max-w-2xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
-        <div className="text-center mb-8">
-          <h2 className="text-2xl sm:text-3xl font-bold text-brand-navy mb-2">
-            Formulario de inscripción
-          </h2>
-          <p className="text-gray-500 text-sm">
-            Completa todos los campos con tus datos reales. La información es confidencial.
-          </p>
-        </div>
-
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8">
-          <FormularioPersonero />
         </div>
       </section>
 
