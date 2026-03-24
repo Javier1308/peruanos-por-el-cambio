@@ -13,6 +13,22 @@ function PeruFlag() {
 export default function App() {
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Form Section — primero */}
+      <section id="inscripcion" className="max-w-2xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
+        <div className="text-center mb-8">
+          <h2 className="text-2xl sm:text-3xl font-bold text-brand-navy mb-2">
+            Formulario de inscripción
+          </h2>
+          <p className="text-gray-500 text-sm">
+            Completa todos los campos con tus datos reales. La información es confidencial.
+          </p>
+        </div>
+
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8">
+          <FormularioPersonero />
+        </div>
+      </section>
+
       {/* Navbar */}
       <header className="bg-brand-navy shadow-sm">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
@@ -75,22 +91,6 @@ export default function App() {
         </div>
       </section>
 
-      {/* Form Section */}
-      <section id="inscripcion" className="max-w-2xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
-        <div className="text-center mb-8">
-          <h2 className="text-2xl sm:text-3xl font-bold text-brand-navy mb-2">
-            Formulario de inscripción
-          </h2>
-          <p className="text-gray-500 text-sm">
-            Completa todos los campos con tus datos reales. La información es confidencial.
-          </p>
-        </div>
-
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8">
-          <FormularioPersonero />
-        </div>
-      </section>
-
       {/* Nosotros Section */}
       <section id="nosotros" className="bg-white">
         {/* Quiénes somos */}
@@ -112,7 +112,7 @@ export default function App() {
                 ¿Quiénes somos?
               </span>
               <h2 className="text-3xl sm:text-4xl font-bold text-brand-navy leading-tight mb-5">
-                Demócratas, liberales<br />y patriotas
+                Demócratas y patriotas
               </h2>
               <p className="text-gray-600 leading-relaxed mb-4">
                 Somos peruanos que amamos nuestro país, defendemos la vida y la libertad, y creemos
@@ -137,39 +137,6 @@ export default function App() {
           </div>
         </div>
 
-        {/* Lo que queremos */}
-        <div className="bg-gray-50 py-14 sm:py-16">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6">
-            <div className="text-center mb-10">
-              <span className="inline-block text-brand-red text-xs font-bold uppercase tracking-widest mb-2">
-                Nuestra misión
-              </span>
-              <h3 className="text-2xl sm:text-3xl font-bold text-brand-navy">
-                Lo que queremos para el Perú
-              </h3>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {[
-                { icon: '💧', title: 'Agua y desagüe', desc: 'Para todos los peruanos que hoy carecen de estos servicios básicos.' },
-                { icon: '📚', title: 'Educación de calidad', desc: 'Mejores aulas y oportunidades reales para los niños en situación de pobreza.' },
-                { icon: '🏥', title: 'Salud y nutrición', desc: 'Reducir la anemia y que los hospitales funcionen para quien más lo necesita.' },
-                { icon: '🛣️', title: 'Infraestructura', desc: 'Carreteras terminadas y obras que realmente lleguen a las regiones.' },
-                { icon: '⚖️', title: 'Justicia real', desc: 'Los corruptos en prisión, no en cargos públicos tomando decisiones.' },
-                { icon: '🗳️', title: 'Voto protegido', desc: 'Elecciones limpias y transparentes. Que cada voto cuente, sin trampas.' },
-              ].map((item) => (
-                <div
-                  key={item.title}
-                  className="bg-white rounded-xl p-5 border border-gray-100 shadow-sm hover:shadow-md hover:border-brand-red transition-all duration-200"
-                >
-                  <span className="text-3xl mb-3 block">{item.icon}</span>
-                  <h4 className="font-bold text-brand-navy mb-1">{item.title}</h4>
-                  <p className="text-sm text-gray-500 leading-relaxed">{item.desc}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-
         {/* Vallejo quote */}
         <div className="bg-brand-navy-dark bg-brand-navy py-12 sm:py-16 relative overflow-hidden">
           {/* Imagen de fondo decorativa */}
@@ -177,16 +144,11 @@ export default function App() {
             className="absolute inset-0 opacity-10 bg-cover bg-center"
             style={{ backgroundImage: 'url(/RunaChay.jpeg)' }}
           />
-          <div className="relative max-w-5xl mx-auto px-4 sm:px-6 flex flex-col md:flex-row items-center gap-8">
-            <img
-              src="/Vallejo1.jpeg"
-              alt="César Vallejo"
-              className="w-36 sm:w-44 flex-shrink-0 rounded-xl shadow-2xl opacity-90"
-            />
+          <div className="relative max-w-5xl mx-auto px-4 sm:px-6 flex flex-col items-center gap-8">
             <div>
               <blockquote className="text-2xl sm:text-3xl font-bold text-white leading-snug mb-4 italic">
-                "Hay hermanos, muchísimo ke hacer…<br />
-                <span className="text-red-400">y no has hecho ni mierda."</span>
+                "Hay hermanos, muchísimo que hacer…<br />
+                <span className="text-red-400">Y ahora es nuestra oportunidad de hacer el cambio."</span>
               </blockquote>
               <p className="text-blue-300 text-sm font-medium">
                 César Vallejo, 1892–1937
