@@ -13,29 +13,6 @@ function PeruFlag() {
 export default function App() {
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Form Section — primero */}
-      <section id="inscripcion" className="max-w-2xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
-        <div className="text-center mb-8">
-          <h2 className="text-2xl sm:text-3xl font-bold text-brand-navy mb-2">
-            Formulario de inscripción
-          </h2>
-          <p className="text-gray-500 text-sm">
-            Completa todos los campos con tus datos reales. La información es confidencial.
-          </p>
-        </div>
-
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8">
-          <FormularioPersonero />
-        </div>
-      </section>
-
-      {/* Wave — transición formulario → header */}
-      <div className="overflow-hidden leading-none bg-brand-navy">
-        <svg viewBox="0 0 1440 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full block" style={{ marginBottom: '-1px' }}>
-          <path d="M0 0L1440 0L1440 30C1200 0 960 40 720 30C480 20 240 40 0 30L0 0Z" fill="#f9fafb" />
-        </svg>
-      </div>
-
       {/* Navbar */}
       <header className="bg-brand-navy shadow-sm">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
@@ -64,6 +41,13 @@ export default function App() {
               Inscríbete como personero electoral y sé parte de la fiscalización
               ciudadana que garantizará elecciones limpias y transparentes en todo el Perú.
             </p>
+            <a
+              href="#inscripcion"
+              className="inline-block bg-brand-red hover:bg-red-700 text-white font-bold px-8 py-3 rounded-xl transition-colors duration-200 mb-8"
+            >
+              Inscríbete ahora
+            </a>
+
             <div className="flex flex-wrap gap-4 text-sm">
               <div className="flex items-center gap-2 text-blue-200">
                 <svg className="w-5 h-5 text-red-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -91,6 +75,22 @@ export default function App() {
           <svg viewBox="0 0 1440 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full">
             <path d="M0 40L1440 40L1440 10C1200 40 960 0 720 10C480 20 240 0 0 10L0 40Z" fill="#f9fafb" />
           </svg>
+        </div>
+      </section>
+
+      {/* Form Section */}
+      <section id="inscripcion" className="max-w-2xl mx-auto px-4 sm:px-6 py-10 sm:py-14">
+        <div className="text-center mb-8">
+          <h2 className="text-2xl sm:text-3xl font-bold text-brand-navy mb-2">
+            Formulario de inscripción
+          </h2>
+          <p className="text-gray-500 text-sm">
+            Completa todos los campos con tus datos reales. La información es confidencial.
+          </p>
+        </div>
+
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 sm:p-8">
+          <FormularioPersonero />
         </div>
       </section>
 
