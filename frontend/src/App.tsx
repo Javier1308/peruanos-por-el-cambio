@@ -46,10 +46,6 @@ export default function App() {
               <p className="text-blue-300 text-xs">Vigilancia electoral ciudadana</p>
             </div>
           </div>
-          <nav className="hidden sm:flex items-center gap-6 text-sm text-blue-200">
-            <a href="#nosotros" className="hover:text-white transition-colors">Nosotros</a>
-            <a href="#inscripcion" className="hover:text-white transition-colors">Inscríbete</a>
-          </nav>
         </div>
       </header>
 
