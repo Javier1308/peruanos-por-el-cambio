@@ -1,7 +1,10 @@
 import csv
 import io
+from datetime import timezone
 from fastapi import APIRouter, Depends, HTTPException, Header, Query, Request
 from fastapi.responses import StreamingResponse
+import openpyxl
+from openpyxl.styles import Font, PatternFill, Alignment
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, cast, Date
 from app.database import get_db
@@ -75,6 +78,74 @@ async def exportar_csv(
         iter([output.getvalue()]),
         media_type="text/csv",
         headers={"Content-Disposition": "attachment; filename=personeros.csv"},
+    )
+
+
+@router.get("/personeros/export/excel")
+async def exportar_excel(
+    departamento: str | None = Query(None),
+    db: AsyncSession = Depends(get_db),
+    _: str = Depends(verify_admin),
+):
+    query = select(Personero).order_by(Personero.created_at.desc())
+    if departamento:
+        query = query.where(Personero.departamento == departamento)
+
+    result = await db.execute(query)
+    personeros = result.scalars().all()
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Personeros"
+
+    headers = [
+        "ID", "Código de Registro", "Nombres", "Apellidos", "DNI",
+        "Teléfono", "Email", "Departamento", "Provincia", "Distrito",
+        "Local de Votación", "DNI Verificado", "IP Registro", "Fecha Registro",
+    ]
+
+    header_fill = PatternFill(start_color="C8102E", end_color="C8102E", fill_type="solid")
+    header_font = Font(color="FFFFFF", bold=True)
+
+    for col, header in enumerate(headers, 1):
+        cell = ws.cell(row=1, column=col, value=header)
+        cell.fill = header_fill
+        cell.font = header_font
+        cell.alignment = Alignment(horizontal="center")
+
+    for row, p in enumerate(personeros, 2):
+        created_at_naive = p.created_at.replace(tzinfo=None) if p.created_at.tzinfo else p.created_at
+        ws.append([
+            p.id,
+            str(p.codigo_registro),
+            p.nombres,
+            p.apellidos,
+            p.dni,
+            p.telefono,
+            p.email,
+            p.departamento,
+            p.provincia,
+            p.distrito,
+            p.local_votacion or "",
+            "Sí" if p.dni_verificado else "No",
+            str(p.ip_registro),
+            created_at_naive,
+        ])
+        ws.cell(row=row, column=14).number_format = "YYYY-MM-DD HH:MM:SS"
+
+    for col in ws.columns:
+        max_len = max((len(str(cell.value)) if cell.value else 0) for cell in col)
+        ws.column_dimensions[col[0].column_letter].width = min(max_len + 4, 40)
+
+    output = io.BytesIO()
+    wb.save(output)
+    output.seek(0)
+
+    filename = f"personeros{'_' + departamento if departamento else ''}.xlsx"
+    return StreamingResponse(
+        output,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f"attachment; filename={filename}"},
     )
 
 

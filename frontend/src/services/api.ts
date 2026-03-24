@@ -49,6 +49,37 @@ export async function validarDni(dni: string): Promise<{
   return data
 }
 
+export interface AdminStats {
+  total: number
+  verificados: number
+  no_verificados: number
+  por_departamento: Record<string, number>
+}
+
+export async function getAdminStats(apiKey: string): Promise<AdminStats> {
+  const { data } = await api.get<AdminStats>('/api/v1/admin/stats', {
+    headers: { 'X-API-Key': apiKey },
+  })
+  return data
+}
+
+export async function downloadExcel(apiKey: string, departamento?: string): Promise<void> {
+  const params = departamento ? `?departamento=${encodeURIComponent(departamento)}` : ''
+  const response = await api.get(`/api/v1/admin/personeros/export/excel${params}`, {
+    headers: { 'X-API-Key': apiKey },
+    responseType: 'blob',
+  })
+  const url = window.URL.createObjectURL(new Blob([response.data]))
+  const link = document.createElement('a')
+  link.href = url
+  const filename = departamento ? `personeros_${departamento}.xlsx` : 'personeros.xlsx'
+  link.setAttribute('download', filename)
+  document.body.appendChild(link)
+  link.click()
+  link.remove()
+  window.URL.revokeObjectURL(url)
+}
+
 export function getErrorMessage(error: unknown): string {
   if (axios.isAxiosError(error)) {
     const detail = error.response?.data?.detail
