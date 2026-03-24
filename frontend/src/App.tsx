@@ -29,6 +29,13 @@ export default function App() {
         </div>
       </section>
 
+      {/* Wave — transición formulario → header */}
+      <div className="overflow-hidden leading-none bg-brand-navy">
+        <svg viewBox="0 0 1440 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full block" style={{ marginBottom: '-1px' }}>
+          <path d="M0 0L1440 0L1440 30C1200 0 960 40 720 30C480 20 240 40 0 30L0 0Z" fill="#f9fafb" />
+        </svg>
+      </div>
+
       {/* Navbar */}
       <header className="bg-brand-navy shadow-sm">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
