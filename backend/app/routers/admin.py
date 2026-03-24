@@ -1,10 +1,7 @@
 import csv
 import io
-from datetime import timezone
 from fastapi import APIRouter, Depends, HTTPException, Header, Query, Request
 from fastapi.responses import StreamingResponse
-import openpyxl
-from openpyxl.styles import Font, PatternFill, Alignment
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, func, cast, Date
 from app.database import get_db
@@ -93,6 +90,9 @@ async def exportar_excel(
 
     result = await db.execute(query)
     personeros = result.scalars().all()
+
+    import openpyxl
+    from openpyxl.styles import Font, PatternFill, Alignment
 
     wb = openpyxl.Workbook()
     ws = wb.active
