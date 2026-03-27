@@ -98,7 +98,10 @@ const schema = z.object({
   provincia: z.string().min(1, 'Selecciona una provincia'),
   provincia_id: z.string(),
   distrito: z.string().min(1, 'Selecciona un distrito'),
-  local_votacion: z.string().optional(),
+  local_votacion: z
+    .string()
+    .optional()
+    .refine((v) => !v || !contienepalabrabloqueada(v), 'El local de votación ingresado no es válido'),
   turnstile_token: z.string().min(1, 'Completa la verificación de seguridad'),
 })
 
