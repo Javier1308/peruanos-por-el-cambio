@@ -174,11 +174,17 @@ export default function App() {
               </div>
             </div>
           </div>
+          {/* Wave divider */}
+          <div className="overflow-hidden leading-none mt-8">
+            <svg viewBox="0 0 1440 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full">
+              <path d="M0 40L1440 40L1440 10C1200 40 960 0 720 10C480 20 240 0 0 10L0 40Z" fill="#122440" />
+            </svg>
+          </div>
         </div>
       </section>
 
       {/* Stats bar */}
-      <section className="bg-brand-navy text-white py-8">
+      <section className="bg-brand-navy-dark text-white py-8">
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-3 gap-6 text-center">
             <div>
