@@ -38,7 +38,7 @@ export default function App() {
               <span className="text-red-400">Defiende la democracia.</span>
             </h1>
             <p className="text-blue-200 text-base sm:text-lg leading-relaxed mb-8">
-              Inscríbete como personero electoral y sé parte de la fiscalización
+              Inscríbete como voluntario electoral y sé parte de la fiscalización
               ciudadana que garantizará elecciones limpias y transparentes en todo el Perú.
             </p>
             <a
@@ -193,7 +193,7 @@ export default function App() {
             </div>
             <div>
               <p className="text-2xl sm:text-3xl font-bold text-red-400">90,000</p>
-              <p className="text-blue-300 text-xs sm:text-sm mt-1">Meta de personeros</p>
+              <p className="text-blue-300 text-xs sm:text-sm mt-1">Meta de voluntarios</p>
             </div>
             <div>
               <p className="text-2xl sm:text-3xl font-bold text-red-400">1</p>
@@ -211,7 +211,7 @@ export default function App() {
             <span className="text-white font-semibold">Defiende Tu Voto</span>
           </div>
           <p>
-            Plataforma de registro de personeros electorales. Todos los derechos reservados © 2026.
+            Plataforma de registro de voluntarios electorales. Todos los derechos reservados © 2026.
           </p>
           <p className="mt-2 text-xs">
             Los datos recopilados se usarán exclusivamente para la coordinación de la fiscalización electoral.

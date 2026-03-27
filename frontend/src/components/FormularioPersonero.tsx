@@ -159,7 +159,7 @@ export function FormularioPersonero() {
           {success.codigo_registro.toUpperCase()}
         </div>
         <p className="mt-6 text-sm text-gray-500">
-          Guarda este número. Te contactaremos con más información sobre tus funciones como personero.
+          Guarda este número. Te contactaremos con más información sobre tus funciones como voluntario.
         </p>
       </div>
     )
@@ -320,13 +320,13 @@ export function FormularioPersonero() {
             Registrando...
           </span>
         ) : (
-          'Inscribirme como Personero'
+          'Inscribirme como Voluntario'
         )}
       </button>
 
       <p className="text-center text-xs text-gray-500">
         Al inscribirte aceptas que tus datos sean utilizados exclusivamente para la coordinación de
-        personeros electorales. No compartiremos tu información con terceros.
+        voluntarios electorales. No compartiremos tu información con terceros.
       </p>
     </form>
   )

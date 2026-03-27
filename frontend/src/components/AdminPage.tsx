@@ -54,7 +54,7 @@ export default function AdminPage() {
           <div className="bg-white rounded-2xl shadow-md p-8">
             <h1 className="text-2xl font-bold text-brand-navy mb-2">Acceso administrativo</h1>
             <p className="text-gray-500 mb-6 text-sm">
-              Ingresa tu clave de acceso para ver estadísticas y descargar el registro de personeros.
+              Ingresa tu clave de acceso para ver estadísticas y descargar el registro de voluntarios.
             </p>
             <form onSubmit={handleVerificar} className="flex flex-col gap-4">
               <div>
