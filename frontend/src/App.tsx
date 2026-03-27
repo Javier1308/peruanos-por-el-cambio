@@ -143,7 +143,7 @@ export default function App() {
         {/* Vallejo quote */}
         <div className="bg-brand-navy py-12 sm:py-16 relative overflow-hidden">
           <div className="relative max-w-5xl mx-auto px-4 sm:px-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
               {/* Imagen Vallejo */}
               <div className="flex justify-start">
                 <div className="relative">
@@ -151,7 +151,7 @@ export default function App() {
                   <img
                     src="/Vallejo2.jpeg"
                     alt="César Vallejo"
-                    className="relative w-full max-w-xs rounded-2xl shadow-2xl object-cover grayscale"
+                    className="relative w-full max-w-sm rounded-2xl shadow-2xl object-cover grayscale"
                     style={{ boxShadow: '0 20px 40px rgba(0,0,0,0.6)' }}
                   />
                 </div>
