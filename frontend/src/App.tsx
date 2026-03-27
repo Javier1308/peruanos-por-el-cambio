@@ -145,19 +145,20 @@ export default function App() {
           <div className="relative max-w-5xl mx-auto px-4 sm:px-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
               {/* Imagen Vallejo */}
-              <div className="flex justify-center md:justify-end">
+              <div className="flex justify-start">
                 <div className="relative">
-                  <div className="absolute -inset-2 bg-brand-red opacity-20 rounded-2xl" />
+                  <div className="absolute -inset-2 bg-gray-900 opacity-30 rounded-2xl" />
                   <img
                     src="/Vallejo2.jpeg"
                     alt="César Vallejo"
                     className="relative w-full max-w-xs rounded-2xl shadow-2xl object-cover grayscale"
+                    style={{ boxShadow: '0 20px 40px rgba(0,0,0,0.6)' }}
                   />
                 </div>
               </div>
 
               {/* Texto */}
-              <div>
+              <div className="flex flex-col justify-center items-center text-center md:text-left md:items-start">
                 <blockquote className="text-2xl sm:text-3xl font-bold text-white leading-snug mb-4 italic">
                   "Hay hermanos, muchísimo que hacer…<br />
                   <span className="text-red-400">Y ahora es nuestra oportunidad de hacer el cambio."</span>
