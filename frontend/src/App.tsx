@@ -141,7 +141,7 @@ export default function App() {
         </div>
 
         {/* Vallejo quote */}
-        <div className="bg-brand-navy py-12 sm:py-16 relative overflow-hidden">
+        <div className="bg-brand-navy pt-12 sm:pt-16 pb-0 relative overflow-hidden">
           <div className="relative max-w-5xl mx-auto px-4 sm:px-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
               {/* Imagen Vallejo */}
@@ -175,7 +175,7 @@ export default function App() {
             </div>
           </div>
           {/* Wave divider */}
-          <div className="overflow-hidden leading-none mt-8">
+          <div className="overflow-hidden leading-none mt-10">
             <svg viewBox="0 0 1440 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full">
               <path d="M0 40L1440 40L1440 10C1200 40 960 0 720 10C480 20 240 0 0 10L0 40Z" fill="#122440" />
             </svg>
