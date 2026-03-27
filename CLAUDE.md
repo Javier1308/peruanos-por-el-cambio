@@ -1,267 +1,353 @@
-# CLAUDE.md — Peruanos por el Cambio: Plataforma de Registro de Personeros
+# CLAUDE.md — Peruanos por el Cambio
 
 ## Contexto del Proyecto
 
-ONG "Peruanos por el Cambio" necesita una plataforma web para registrar voluntarios ("personeros") que supervisarán la legitimidad de los votos en las próximas elecciones presidenciales de Perú. La plataforma debe soportar ~200k registros totales con posibles picos de tráfico concentrados.
+Plataforma web para registrar voluntarios ("personeros") que supervisarán la legitimidad de los votos en las elecciones presidenciales de Perú. Objetivo: ~200k registros totales.
 
-**Óptica política:** La organización tiene una postura crítica frente a la izquierda. El tono de la marca y el copy deben reflejar esto de forma profesional — enfocándose en transparencia electoral, democracia y vigilancia ciudadana.
+**Óptica política:** Postura crítica frente a la izquierda. Tono patriótico, profesional, enfocado en transparencia electoral y vigilancia ciudadana.
+
+---
+
+## Arquitectura General
+
+```
+[Cloudflare Turnstile CAPTCHA]
+         │
+    [Vercel CDN]
+    React 18 + Vite + TypeScript + Tailwind
+         │ (axios → /api/v1/*)
+         ▼
+    [Railway]
+    FastAPI (Docker, uvicorn 2 workers)
+    Rate limiting: slowapi (in-memory, no Redis)
+         │ (asyncpg, NullPool)
+         ▼
+    [Supabase]
+    PostgreSQL — tabla: personeros
+```
 
 ---
 
 ## Stack Tecnológico
 
 ### Frontend
-- **Framework:** React con TypeScript
-- **Styling:** Tailwind CSS
-- **Deploy:** Vercel (con dominio custom comprado en Vercel)
-- **CAPTCHA:** Cloudflare Turnstile (widget embebido en el formulario)
+| Tecnología | Versión |
+|------------|---------|
+| React | 18.3.1 |
+| TypeScript | 5.6.3 |
+| Vite | 6.0.5 |
+| Tailwind CSS | 3.4.17 |
+| React Hook Form | 7.54.2 |
+| Zod (validación) | 3.24.1 |
+| Axios | 1.7.9 |
+| @marsidev/react-turnstile | 1.0.0 |
 
 ### Backend
-- **Framework:** FastAPI (Python 3.11+)
-- **ORM/DB Driver:** SQLAlchemy 2.0 async + asyncpg
-- **Validación:** Pydantic v2
-- **Rate Limiting:** slowapi (basado en IP) + Redis como store
-- **Deploy:** Railway (contenedor Docker)
+| Tecnología | Versión |
+|------------|---------|
+| Python | 3.11+ |
+| FastAPI | 0.115.5 |
+| Uvicorn | 0.32.1 |
+| SQLAlchemy (async) | 2.0.36 |
+| asyncpg | 0.30.0 |
+| Pydantic v2 | 2.10.3 |
+| pydantic-settings | 2.6.1 |
+| httpx | 0.28.1 |
+| slowapi | 0.1.9 |
+| openpyxl | 3.1.5 |
 
-### Base de Datos
-- **PostgreSQL** en Railway (instancia dedicada, misma red interna que el backend)
-- **Connection Pooling:** PgBouncer o el pool nativo de asyncpg (min=10, max=50 conexiones)
-
-### Cache / Rate Limiting
-- **Redis** en Railway (para contadores de rate limiting por IP)
-
----
-
-## Arquitectura de Deploy
-
-```
-[Cloudflare DNS + Turnstile]
-         │
-    [Vercel CDN]
-    Frontend React/TS
-         │ (API calls)
-         ▼
-    [Railway]
-    ┌─────────────────┐
-    │  FastAPI (Docker)│──── Redis (rate limit)
-    │  uvicorn workers │
-    └────────┬────────┘
-             │ (async, internal network)
-             ▼
-        [PostgreSQL]
-        Railway addon
-```
-
----
-
-## Estructura del Formulario
-
-### Campos requeridos:
-
-| Campo                | Tipo         | Validación                                    |
-|----------------------|--------------|-----------------------------------------------|
-| `nombres`            | string       | Min 2 caracteres, solo letras y espacios      |
-| `apellidos`          | string       | Min 2 caracteres, solo letras y espacios      |
-| `dni`                | string       | Exactamente 8 dígitos numéricos               |
-| `telefono`           | string       | 9 dígitos, empieza con 9 (formato peruano)    |
-| `email`              | string       | Formato email válido                           |
-| `departamento`       | string       | Select — lista de 25 departamentos de Perú    |
-| `provincia`          | string       | Select — dinámico según departamento           |
-| `distrito`           | string       | Select — dinámico según provincia              |
-| `local_votacion`     | string       | Texto libre o select si se tiene la data ONPE  |
-| `turnstile_token`    | string       | Token de Cloudflare Turnstile (hidden field)   |
-
-### Validación de DNI:
-- Integrar con la API de consulta de DNI de Perú (apis.net.pe u otro servicio similar)
-- Validar que el DNI exista y que el nombre coincida con los datos ingresados
-- Si la API externa no responde, permitir el registro pero marcarlo como `dni_verificado = false`
-
----
-
-## Modelo de Base de Datos
-
-### Tabla `personeros`:
-
-```sql
-CREATE TABLE personeros (
-    id              SERIAL PRIMARY KEY,
-    nombres         VARCHAR(100) NOT NULL,
-    apellidos       VARCHAR(100) NOT NULL,
-    dni             VARCHAR(8) UNIQUE NOT NULL,
-    telefono        VARCHAR(9) NOT NULL,
-    email           VARCHAR(255) NOT NULL,
-    departamento    VARCHAR(50) NOT NULL,
-    provincia       VARCHAR(50) NOT NULL,
-    distrito        VARCHAR(50) NOT NULL,
-    local_votacion  VARCHAR(255),
-    dni_verificado  BOOLEAN DEFAULT FALSE,
-    ip_registro     INET NOT NULL,
-    created_at      TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    
-    CONSTRAINT chk_dni_length CHECK (LENGTH(dni) = 8),
-    CONSTRAINT chk_telefono CHECK (telefono ~ '^9[0-9]{8}$')
-);
-
-CREATE INDEX idx_personeros_dni ON personeros(dni);
-CREATE INDEX idx_personeros_departamento ON personeros(departamento);
-CREATE INDEX idx_personeros_created_at ON personeros(created_at);
-```
-
----
-
-## Endpoints del Backend
-
-### API REST:
-
-```
-POST   /api/v1/personeros          → Registrar nuevo personero
-GET    /api/v1/departamentos       → Lista de departamentos
-GET    /api/v1/provincias/{dep}    → Provincias por departamento
-GET    /api/v1/distritos/{prov}    → Distritos por provincia
-POST   /api/v1/validar-dni         → Validar DNI contra API externa
-```
-
-### Admin (protegido con API key o basic auth):
-
-```
-GET    /api/v1/admin/personeros              → Listar registros (paginado)
-GET    /api/v1/admin/personeros/export/csv   → Exportar a CSV
-GET    /api/v1/admin/stats                   → Estadísticas (total, por departamento, etc.)
-```
-
----
-
-## Seguridad y Rate Limiting
-
-### Rate Limiting por IP:
-- **Registro de personero:** máximo 3 requests por IP cada 10 minutos
-- **Validación de DNI:** máximo 10 requests por IP cada 5 minutos
-- **Endpoints públicos (departamentos, etc.):** máximo 60 requests por minuto
-- Almacenar contadores en Redis con TTL automático
-
-### CAPTCHA — Cloudflare Turnstile:
-- El frontend envía el `turnstile_token` junto con el formulario
-- El backend valida el token contra `https://challenges.cloudflare.com/turnstile/v0/siteverify`
-- Si la validación falla, retornar 403
-- **Variables de entorno necesarias:** `TURNSTILE_SITE_KEY` (frontend), `TURNSTILE_SECRET_KEY` (backend)
-
-### Protecciones adicionales:
-- CORS configurado solo para el dominio del frontend en Vercel
-- Helmet-like headers (via middleware FastAPI)
-- Sanitización de inputs contra XSS/SQL injection (Pydantic + SQLAlchemy parameterized queries)
-- DNI como UNIQUE constraint previene registros duplicados
-
----
-
-## Variables de Entorno
-
-### Backend (.env):
-```
-DATABASE_URL=postgresql+asyncpg://user:pass@host:port/dbname
-REDIS_URL=redis://host:port
-TURNSTILE_SECRET_KEY=0x...
-ADMIN_API_KEY=clave-segura-para-admin
-ALLOWED_ORIGINS=https://tudominio.com
-DNI_API_URL=https://api.apis.net.pe/v2/reniec/dni
-DNI_API_TOKEN=tu-token-apis-net-pe
-```
-
-### Frontend (.env.local):
-```
-NEXT_PUBLIC_API_URL=https://api.tudominio.com
-NEXT_PUBLIC_TURNSTILE_SITE_KEY=0x...
-```
-
-> **Nota:** El frontend es React puro con Vite o CRA, no Next.js. Las variables de entorno usan prefijo `VITE_` si es Vite.
+### Infraestructura
+- **Frontend:** Vercel (SPA con rewrite en `vercel.json`)
+- **Backend:** Railway (contenedor Docker)
+- **Base de datos:** Supabase (PostgreSQL)
+- **CAPTCHA:** Cloudflare Turnstile
 
 ---
 
 ## Estructura de Carpetas
 
-### Backend (FastAPI):
 ```
-backend/
-├── app/
-│   ├── __init__.py
-│   ├── main.py                 # FastAPI app, middleware, CORS
-│   ├── config.py               # Settings con pydantic-settings
-│   ├── database.py             # Async engine + session factory
-│   ├── models/
-│   │   └── personero.py        # SQLAlchemy model
-│   ├── schemas/
-│   │   └── personero.py        # Pydantic schemas (request/response)
-│   ├── routers/
-│   │   ├── personeros.py       # CRUD endpoints
-│   │   ├── ubicacion.py        # Departamentos/Provincias/Distritos
-│   │   └── admin.py            # Panel admin endpoints
-│   ├── services/
-│   │   ├── dni_validator.py    # Integración API DNI
-│   │   └── turnstile.py        # Verificación Cloudflare Turnstile
-│   ├── middleware/
-│   │   └── rate_limiter.py     # Rate limiting con slowapi + Redis
-│   └── data/
-│       └── ubigeo.json         # Data estática de departamentos/provincias/distritos
-├── Dockerfile
-├── requirements.txt
-├── docker-compose.yml          # Para desarrollo local
-└── .env.example
-```
-
-### Frontend (React + TypeScript):
-```
-frontend/
-├── src/
-│   ├── App.tsx
-│   ├── main.tsx
-│   ├── components/
-│   │   ├── FormularioPersonero.tsx    # Formulario principal
-│   │   ├── SelectorUbicacion.tsx      # Cascada departamento>provincia>distrito
-│   │   ├── CaptchaWidget.tsx          # Wrapper Cloudflare Turnstile
-│   │   └── ui/                        # Componentes reutilizables
-│   ├── hooks/
-│   │   ├── useFormulario.ts           # Lógica del formulario
-│   │   └── useUbicacion.ts            # Fetch cascada ubicaciones
-│   ├── services/
-│   │   └── api.ts                     # Cliente HTTP (axios/fetch)
-│   ├── types/
-│   │   └── personero.ts              # TypeScript interfaces
-│   └── data/
-│       └── departamentos.ts           # Data estática si se necesita
-├── package.json
-├── tsconfig.json
-├── tailwind.config.js
-├── vite.config.ts
-└── .env.example
+peruanos-por-el-cambio/
+├── frontend/
+│   ├── src/
+│   │   ├── App.tsx                       # Página principal (hero, form, secciones)
+│   │   ├── main.tsx                      # Entry point — rutea a App o AdminPage
+│   │   ├── index.css                     # Tailwind imports + .btn-primary
+│   │   ├── vite-env.d.ts                 # Tipos de variables de entorno Vite
+│   │   ├── components/
+│   │   │   ├── FormularioPersonero.tsx   # Formulario principal (Zod + progress bar)
+│   │   │   ├── SelectorUbicacion.tsx     # Selects cascada departamento > provincia > distrito
+│   │   │   ├── CaptchaWidget.tsx         # Wrapper Turnstile (locale es, theme light)
+│   │   │   └── AdminPage.tsx             # Panel admin (stats + export Excel)
+│   │   ├── hooks/
+│   │   │   └── useUbicacion.ts           # Lógica fetch y estado de la cascada de ubicaciones
+│   │   ├── services/
+│   │   │   └── api.ts                    # Cliente Axios — todas las llamadas al backend
+│   │   └── types/
+│   │       └── personero.ts              # Interfaces TypeScript
+│   ├── package.json
+│   ├── vite.config.ts                    # Dev proxy: /api/* → localhost:8000
+│   ├── tsconfig.json                     # strict mode habilitado
+│   ├── tailwind.config.js                # Brand colors + fuente DM Sans + animaciones
+│   ├── postcss.config.js
+│   └── vercel.json                       # Rewrite: /* → /index.html (SPA)
+│
+├── backend/
+│   ├── app/
+│   │   ├── main.py                       # FastAPI app, CORS, security headers, lifespan
+│   │   ├── config.py                     # Settings con pydantic-settings (@lru_cache)
+│   │   ├── database.py                   # Engine async NullPool + get_db dependency
+│   │   ├── models/
+│   │   │   └── personero.py              # SQLAlchemy ORM — tabla personeros
+│   │   ├── schemas/
+│   │   │   └── personero.py              # Pydantic schemas request/response/admin
+│   │   ├── routers/
+│   │   │   ├── personeros.py             # POST /personeros, POST /validar-dni
+│   │   │   ├── ubicacion.py              # GET /departamentos, /provincias, /distritos
+│   │   │   └── admin.py                  # GET /stats, /personeros, /export/csv, /export/excel
+│   │   ├── services/
+│   │   │   ├── turnstile.py              # Verifica token con Cloudflare API
+│   │   │   └── dni_validator.py          # Validación heurística local de DNI
+│   │   ├── middleware/
+│   │   │   └── rate_limiter.py           # slowapi + handler 429
+│   │   └── data/
+│   │       └── ubigeo.json               # 8829 líneas: 25 departamentos, provincias, distritos
+│   ├── Dockerfile                        # python:3.11-slim, user no-root, 2 workers
+│   ├── docker-compose.yml                # Desarrollo local con hot reload
+│   ├── requirements.txt
+│   └── scripts/
+│       └── generar_ubigeo.py             # Script generador de ubigeo.json
+│
+└── CLAUDE.md
 ```
 
 ---
 
-## Directrices de Diseño (Frontend)
+## Base de Datos
 
-### Branding "Peruanos por el Cambio":
-- **Paleta de colores:** Rojo y blanco (bandera peruana) como primarios, con acentos en azul oscuro para seriedad institucional
-- **Tono:** Patriótico, profesional, urgente pero no alarmista
-- **Tipografía:** Sans-serif moderna y legible (ej: DM Sans, Outfit, o similar)
-- **Hero message:** Enfocarse en defender la democracia, transparencia electoral, y la participación ciudadana
-- **CTA principal:** "Inscríbete como Personero" o "Defiende tu Voto"
+### Tabla `personeros` (Supabase PostgreSQL)
 
-### UX del formulario:
-- Single page, sin pasos — todo visible de una vez
-- Validación inline en tiempo real (feedback inmediato por campo)
-- Indicador de progreso o completitud
-- Mensaje de éxito claro post-envío con número de registro
-- Mobile-first (la mayoría de usuarios accederán desde celular)
+```sql
+CREATE TABLE personeros (
+    id               SERIAL PRIMARY KEY,
+    codigo_registro  UUID UNIQUE DEFAULT gen_random_uuid(),
+    nombres          VARCHAR(100) NOT NULL,
+    apellidos        VARCHAR(100) NOT NULL,
+    dni              VARCHAR(8) UNIQUE NOT NULL,
+    telefono         VARCHAR(9) NOT NULL,
+    email            VARCHAR(255) NOT NULL,
+    departamento     VARCHAR(50) NOT NULL,
+    provincia        VARCHAR(50) NOT NULL,
+    distrito         VARCHAR(50) NOT NULL,
+    local_votacion   VARCHAR(255),
+    dni_verificado   BOOLEAN DEFAULT FALSE NOT NULL,
+    ip_registro      INET NOT NULL,
+    created_at       TIMESTAMP WITH TIME ZONE DEFAULT NOW() NOT NULL
+);
+
+CREATE INDEX idx_personeros_dni ON personeros(dni);
+CREATE INDEX idx_personeros_departamento ON personeros(departamento);
+CREATE INDEX idx_personeros_created_at ON personeros(created_at);
+CREATE INDEX idx_personeros_codigo_registro ON personeros(codigo_registro);
+```
+
+**Notas de conexión Supabase:**
+- `NullPool` en SQLAlchemy (el pooler de Supabase maneja las conexiones)
+- `statement_cache_size=0` en connect_args (requerido por el pooler de Supabase)
+- UUID `codigo_registro` es lo que se muestra al usuario como confirmación
 
 ---
 
-## Notas para el desarrollo
+## API Endpoints
 
-1. **Ubigeo de Perú:** Usar la data oficial de INEI/RENIEC para departamentos, provincias y distritos. Se puede encontrar en formato JSON en repos públicos de GitHub (buscar "ubigeo peru json").
+### Públicos (prefijo `/api/v1`)
 
-2. **API de DNI:** apis.net.pe ofrece un plan gratuito limitado. Considerar cachear resultados en Redis para evitar llamadas repetidas al mismo DNI.
+| Método | Ruta | Rate Limit | Descripción |
+|--------|------|------------|-------------|
+| POST | `/personeros` | 5/10min por IP | Registrar personero |
+| POST | `/validar-dni` | 10/5min por IP | Validar DNI heurísticamente |
+| GET | `/departamentos` | 60/min | Lista de 25 departamentos |
+| GET | `/provincias/{dep_id}` | 60/min | Provincias de un departamento |
+| GET | `/distritos/{prov_id}` | 60/min | Distritos de una provincia |
+| GET | `/health` | sin límite | Health check |
 
-3. **Escalabilidad:** 200k registros totales + buffer de 50k. PostgreSQL maneja esto sin problema. No se necesitan optimizaciones especiales de base de datos.
+### Admin (prefijo `/api/v1/admin`, header `X-API-Key` requerido)
 
-4. **Monitoreo:** Railway ofrece logs básicos. Considerar agregar un endpoint `/health` para monitoreo.
+| Método | Ruta | Descripción |
+|--------|------|-------------|
+| GET | `/personeros` | Listar paginado (filtros: departamento, dni_verificado) |
+| GET | `/personeros/export/csv` | Exportar CSV (filtro: departamento) |
+| GET | `/personeros/export/excel` | Exportar Excel estilizado (header rojo #C8102E) |
+| GET | `/stats` | Total registros, verificados, breakdown por departamento |
 
-5. **Backup:** Configurar backups automáticos de la base de datos en Railway antes de ir a producción.
+---
+
+## Validaciones
+
+### Frontend (Zod)
+```typescript
+const LETRAS = /^[a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ\s]+$/
+// nombres/apellidos: LETRAS, mín 2 chars
+// dni: exactamente 8 dígitos
+// telefono: 9 dígitos, empieza con 9
+// email: formato válido (zod email)
+// departamento/provincia/distrito: requerido (no vacío)
+```
+
+### Backend (Pydantic v2)
+Mismas reglas que frontend, más:
+- Turnstile token no vacío en `PersoneroCreate`
+- `ip_registro` extraída del request (no viene del cliente)
+
+### Validación de DNI (heurística local)
+El servicio `dni_validator.py` rechaza DNIs con patrones sospechosos:
+1. Todos los dígitos iguales (00000000, 11111111...)
+2. Secuencia ascendente estricta (12345678)
+3. Secuencia descendente estricta (98765432)
+4. Primera mitad repetida (12341234)
+5. Patrón alternado (12121212)
+6. 6 o más dígitos iguales
+7. Valor < 1,000,000
+8. Valor > 87,000,000
+
+**No hay integración con API externa de RENIEC.** `dni_verificado` queda `false` en todos los registros.
+
+---
+
+## Seguridad
+
+### Cloudflare Turnstile
+- Frontend: widget embebido en el formulario, token enviado con el POST
+- Backend: `turnstile.py` verifica contra `https://challenges.cloudflare.com/turnstile/v0/siteverify`
+- Si falla la verificación → 403
+
+### Rate Limiting
+- `slowapi` con key_func = IP remota
+- Almacenamiento **en memoria** (no Redis) — no escala horizontalmente
+- Límite global default: 200/min
+
+### Otras protecciones
+- Security headers vía middleware: `X-Content-Type-Options`, `X-Frame-Options`, `X-XSS-Protection`, `Referrer-Policy`, `Permissions-Policy`
+- CORS configurado con `ALLOWED_ORIGINS` (solo dominio Vercel en prod)
+- DNI con UNIQUE constraint → previene duplicados a nivel DB
+- Queries con parámetros (SQLAlchemy ORM) → sin riesgo de SQL injection
+- Docs de FastAPI (`/docs`) deshabilitadas en producción (`DEBUG=false`)
+
+---
+
+## Variables de Entorno
+
+### Backend (`backend/.env`)
+```env
+DATABASE_URL=postgresql+asyncpg://postgres:password@db.xxxx.supabase.co:5432/postgres
+TURNSTILE_SECRET_KEY=1x0000000000000000000000000000000AA
+ADMIN_API_KEY=cambia-esto-en-produccion
+ALLOWED_ORIGINS=http://localhost:5173
+DEBUG=false
+```
+
+### Frontend (`frontend/.env.local`)
+```env
+VITE_API_URL=http://localhost:8000
+VITE_TURNSTILE_SITE_KEY=1x00000000000000000000AA
+```
+
+> En producción: `VITE_API_URL` apunta al backend en Railway, `VITE_TURNSTILE_SITE_KEY` es la clave real de Cloudflare.
+
+---
+
+## Branding y Diseño
+
+### Paleta de colores (tailwind.config.js)
+```javascript
+colors: {
+  'brand-red':        '#C8102E',
+  'brand-red-dark':   '#9B0D22',
+  'brand-red-light':  '#E8314F',
+  'brand-navy':       '#1E3A5F',
+  'brand-navy-dark':  '#122440',
+  'brand-navy-light': '#2B5080',
+}
+```
+
+### Tipografía
+DM Sans (Google Fonts, importada en `index.css`)
+
+### Estructura de App.tsx
+1. **Header/Navbar** — Logo Peru flag + "Defiende Tu Voto"
+2. **Hero Section** — Fondo navy, CTA, 3 bullets patrióticos
+3. **Wave SVG** — Transición suave entre hero y formulario
+4. **Sección Formulario** — `<FormularioPersonero />`
+5. **Sección "¿Quiénes somos?"** — Con imagen Runa Chay
+6. **Quote Vallejo** — Fondo navy, mensaje patriótico
+7. **Barra de estadísticas** — 25 departamentos / meta 90,000 / 1 Perú
+8. **Footer** — Copyright + aviso de privacidad
+
+### Ruteo (main.tsx)
+```typescript
+// Si window.location.pathname === '/admin' → <AdminPage />
+// De lo contrario → <App />
+// Sin React Router; ruteo manual por pathname
+```
+
+---
+
+## Desarrollo Local
+
+### Levantar backend
+```bash
+cd backend
+cp .env.example .env  # Editar DATABASE_URL con tu Supabase
+docker-compose up     # Hot reload habilitado
+# O sin Docker:
+pip install -r requirements.txt
+uvicorn app.main:app --reload
+```
+
+### Levantar frontend
+```bash
+cd frontend
+cp .env.example .env.local  # Editar si es necesario
+npm install
+npm run dev  # Proxy a localhost:8000 ya configurado en vite.config.ts
+```
+
+### Acceder al admin local
+```
+http://localhost:5173/admin
+# Ingresar ADMIN_API_KEY del .env
+```
+
+---
+
+## Estado del Deploy (al 2026-03-25)
+
+| Componente | Estado |
+|------------|--------|
+| Código | Completo en GitHub |
+| Supabase DB | Pendiente configurar DATABASE_URL real |
+| Railway (backend) | Pendiente deploy |
+| Vercel (frontend) | Pendiente deploy |
+| Cloudflare Turnstile | Usando test keys — pendiente keys reales |
+| RENIEC API | No integrada — solo validación heurística local |
+
+### Pasos pendientes para producción
+1. Crear proyecto en Railway → obtener variables de entorno
+2. Configurar DATABASE_URL real de Supabase en Railway
+3. Conectar repo en Vercel, configurar `VITE_API_URL` y `VITE_TURNSTILE_SITE_KEY`
+4. Actualizar `ALLOWED_ORIGINS` en Railway con el dominio Vercel final
+5. Crear site en Cloudflare Turnstile → obtener site key y secret key reales
+6. Crear schema en Supabase (correr SQL de la sección "Base de Datos")
+
+---
+
+## Decisiones de Arquitectura
+
+| Decisión | Motivo |
+|----------|--------|
+| Supabase en vez de Railway PostgreSQL | Free tier generoso + dashboard visual |
+| Rate limiting in-memory (sin Redis) | Suficiente para una sola instancia Railway |
+| Validación DNI heurística local | Evita costos y rate limits de API externa |
+| NullPool en SQLAlchemy | El pooler de Supabase gestiona las conexiones |
+| Sin React Router | Solo dos rutas (`/` y `/admin`), no justifica dependencia |
+| openpyxl para export | Headers con color de marca en Excel (#C8102E) |

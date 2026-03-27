@@ -10,15 +10,78 @@ import type { PersoneroResponse } from '../types/personero'
 
 const LETRAS = /^[a-zA-ZáéíóúÁÉÍÓÚàèìòùÀÈÌÒÙñÑüÜ\s]+$/
 
+const soloNumeros = (e: React.FormEvent<HTMLInputElement>) => {
+  e.currentTarget.value = e.currentTarget.value.replace(/\D/g, '')
+}
+
+const PALABRAS_BLOQUEADAS = [
+  // Insultos directos
+  'idiota', 'imbecil', 'imbécil', 'estupido', 'estúpido', 'estupida', 'estúpida',
+  'pendejo', 'pendeja', 'pendejos', 'pendejas',
+  'huevon', 'huevona', 'huevones', 'huevonas', 'huevón', 'huevona',
+  'cojudo', 'cojuda', 'cojudos', 'cojudas',
+  'maricón', 'marica', 'maricon',
+  'puta', 'putas', 'puto', 'putos', 'putita',
+  'mierda', 'mierdas', 'mierdon', 'mierdoso', 'mierdosa',
+  'cabrón', 'cabron', 'cabrona', 'cabrones',
+  'bastardo', 'bastarda', 'bastardos',
+  'hdp', 'hijodeputa', 'hijo de puta', 'hijadeputa', 'hija de puta',
+  'concha', 'conchatumadre', 'conchadetumare',
+  'cholo', 'chola', 'cholos', 'cholas',
+  'serrano', 'serrana', 'serranos', 'serranas',
+  'negro', 'negra', 'negros', 'negras',
+  'indio', 'india', 'indios', 'indias',
+  'mongol', 'mongola', 'mongoles',
+  'retrasado', 'retrasada', 'retardo',
+  'tarado', 'tarada', 'tarados',
+  'animal', 'bestia', 'burro', 'burra',
+  'gil', 'giles', 'otario', 'otaria',
+  'pelotudo', 'pelotuda', 'pelotudos',
+  'boludo', 'boluda', 'boludos',
+  'forro', 'forra', 'forros',
+  'sorete', 'soretes',
+  'weon', 'weón', 'weon', 'weona',
+  'culiao', 'culiado', 'culiada',
+  'ctm', 'lacto', 'lacra',
+  // Contenido sexual explícito
+  'pene', 'penes', 'pija', 'pijas', 'verga', 'vergas',
+  'vagina', 'vaginas', 'coño', 'cono',
+  'culo', 'culos', 'nalgas', 'tetas', 'teta',
+  'sexo', 'porno', 'pornografia', 'pornografía',
+  'follar', 'coger', 'culiar', 'mamar',
+  // Términos despectivos
+  'terrorista', 'terroristas', 'narco', 'narcos',
+  'comunista', 'comunistas', 'fujimorista',
+  'corrupto', 'corrupta', 'corruptos',
+]
+
+function contienepalabrabloqueada(texto: string): boolean {
+  const normalizado = texto
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // quitar tildes
+    .replace(/[^a-z\s]/g, '')        // solo letras y espacios
+
+  return PALABRAS_BLOQUEADAS.some((palabra) => {
+    const palabraNormalizada = palabra
+      .toLowerCase()
+      .normalize('NFD')
+      .replace(/[\u0300-\u036f]/g, '')
+    return normalizado.split(/\s+/).includes(palabraNormalizada)
+  })
+}
+
 const schema = z.object({
   nombres: z
     .string()
     .min(2, 'Mínimo 2 caracteres')
-    .regex(LETRAS, 'Solo letras y espacios'),
+    .regex(LETRAS, 'Solo letras y espacios')
+    .refine((v) => !contienepalabrabloqueada(v), 'El nombre ingresado no es válido'),
   apellidos: z
     .string()
     .min(2, 'Mínimo 2 caracteres')
-    .regex(LETRAS, 'Solo letras y espacios'),
+    .regex(LETRAS, 'Solo letras y espacios')
+    .refine((v) => !contienepalabrabloqueada(v), 'El apellido ingresado no es válido'),
   dni: z
     .string()
     .length(8, 'El DNI debe tener exactamente 8 dígitos')
@@ -26,7 +89,10 @@ const schema = z.object({
   telefono: z
     .string()
     .regex(/^9\d{8}$/, 'Debe tener 9 dígitos y empezar con 9'),
-  email: z.string().email('Correo electrónico inválido'),
+  email: z
+    .string()
+    .email('Correo electrónico inválido')
+    .refine((v) => !contienepalabrabloqueada(v.split('@')[0]), 'El correo ingresado no es válido'),
   departamento: z.string().min(1, 'Selecciona un departamento'),
   departamento_id: z.string(),
   provincia: z.string().min(1, 'Selecciona una provincia'),
@@ -214,6 +280,7 @@ export function FormularioPersonero() {
             inputMode="numeric"
             autoComplete="off"
             hint="8 dígitos numéricos"
+            onInput={soloNumeros}
             error={errors.dni?.message}
             {...register('dni')}
           />
@@ -226,6 +293,7 @@ export function FormularioPersonero() {
             inputMode="tel"
             autoComplete="tel"
             hint="9 dígitos, empieza con 9"
+            onInput={soloNumeros}
             error={errors.telefono?.message}
             {...register('telefono')}
           />
