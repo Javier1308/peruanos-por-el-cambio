@@ -141,26 +141,36 @@ export default function App() {
         </div>
 
         {/* Vallejo quote */}
-        <div className="bg-brand-navy-dark bg-brand-navy py-12 sm:py-16 relative overflow-hidden">
-          {/* Imagen de fondo decorativa */}
-          <div
-            className="absolute inset-0 opacity-10 bg-cover bg-center"
-            style={{ backgroundImage: 'url(/RunaChay.jpeg)' }}
-          />
-          <div className="relative max-w-5xl mx-auto px-4 sm:px-6 flex flex-col items-center gap-8">
-            <div>
-              <blockquote className="text-2xl sm:text-3xl font-bold text-white leading-snug mb-4 italic">
-                "Hay hermanos, muchísimo que hacer…<br />
-                <span className="text-red-400">Y ahora es nuestra oportunidad de hacer el cambio."</span>
-              </blockquote>
-              <p className="text-blue-300 text-sm font-medium">
-                César Vallejo, 1892–1937
-              </p>
-              <p className="text-blue-200 text-base mt-4 max-w-lg">
-                Este <strong className="text-white">12 de abril</strong>, regálale un día a tu Perú.
-                Cuida el voto en tu mesa — no importa tu color político, mientras seas demócrata y patriota.
-                Todos somos peruanos y queremos vivir en un país seguro y con oportunidades.
-              </p>
+        <div className="bg-brand-navy py-12 sm:py-16 relative overflow-hidden">
+          <div className="relative max-w-5xl mx-auto px-4 sm:px-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-10 items-center">
+              {/* Imagen Vallejo */}
+              <div className="flex justify-center md:justify-end">
+                <div className="relative">
+                  <div className="absolute -inset-2 bg-brand-red opacity-20 rounded-2xl" />
+                  <img
+                    src="/Vallejo2.jpeg"
+                    alt="César Vallejo"
+                    className="relative w-full max-w-xs rounded-2xl shadow-2xl object-cover grayscale"
+                  />
+                </div>
+              </div>
+
+              {/* Texto */}
+              <div>
+                <blockquote className="text-2xl sm:text-3xl font-bold text-white leading-snug mb-4 italic">
+                  "Hay hermanos, muchísimo que hacer…<br />
+                  <span className="text-red-400">Y ahora es nuestra oportunidad de hacer el cambio."</span>
+                </blockquote>
+                <p className="text-blue-300 text-sm font-medium mb-4">
+                  César Vallejo, 1892–1937
+                </p>
+                <p className="text-blue-200 text-base max-w-lg">
+                  Este <strong className="text-white">12 de abril</strong>, regálale un día a tu Perú.
+                  Cuida el voto en tu mesa — no importa tu color político, mientras seas demócrata y patriota.
+                  Todos somos peruanos y queremos vivir en un país seguro y con oportunidades.
+                </p>
+              </div>
             </div>
           </div>
         </div>
