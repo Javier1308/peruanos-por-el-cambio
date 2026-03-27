@@ -39,7 +39,7 @@ export default function App() {
             </h1>
             <p className="text-blue-200 text-base sm:text-lg leading-relaxed mb-8">
               Este 12 de abril necesitamos voluntarios en cada rincón del país.
-              Inscríbete hoy y sé parte de la red ciudadana que garantizará elecciones limpias y transparentes.
+              Inscríbete hoy y sé parte de la red ciudadana que velará por elecciones limpias y transparentes.
             </p>
             <a
               href="#inscripcion"
