@@ -175,8 +175,8 @@ export default function App() {
             </div>
           </div>
           {/* Wave divider */}
-          <div className="overflow-hidden leading-none mt-10">
-            <svg viewBox="0 0 1440 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full">
+          <div className="overflow-hidden leading-none mt-10 -mb-px">
+            <svg viewBox="0 0 1440 40" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full block">
               <path d="M0 40L1440 40L1440 10C1200 40 960 0 720 10C480 20 240 0 0 10L0 40Z" fill="#122440" />
             </svg>
           </div>
