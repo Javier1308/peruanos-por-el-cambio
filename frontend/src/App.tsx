@@ -34,12 +34,12 @@ export default function App() {
               <span>Elecciones Presidenciales 2026</span>
             </div>
             <h1 className="text-3xl sm:text-5xl font-bold leading-tight mb-5">
-              Defiende tu voto.{' '}
-              <span className="text-red-400">Defiende la democracia.</span>
+              Sé voluntario.{' '}
+              <span className="text-red-400">Regálale un día a tu país.</span>
             </h1>
             <p className="text-blue-200 text-base sm:text-lg leading-relaxed mb-8">
-              Inscríbete como voluntario electoral y sé parte de la fiscalización
-              ciudadana que garantizará elecciones limpias y transparentes en todo el Perú.
+              Este 12 de abril necesitamos voluntarios en cada rincón del país.
+              Inscríbete hoy y sé parte de la red ciudadana que garantizará elecciones limpias y transparentes.
             </p>
             <a
               href="#inscripcion"
