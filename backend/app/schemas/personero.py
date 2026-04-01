@@ -85,7 +85,6 @@ class PersoneroAdmin(BaseModel):
     apellidos: str
     dni: str
     telefono: str
-    email: Optional[str] = None
     departamento: str
     provincia: str
     distrito: str
