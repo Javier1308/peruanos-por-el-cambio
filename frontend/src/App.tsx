@@ -210,8 +210,11 @@ export default function App() {
             <PeruFlag />
             <span className="text-white font-semibold">Defiende Tu Voto</span>
           </div>
+          <p className="text-gray-500 text-xs mb-2">
+            Proyecto gestionado por GESTER LATAM. Todos los derechos reservados © 2026.
+          </p>
           <p>
-            Plataforma de registro de voluntarios electorales. Todos los derechos reservados © 2026.
+            Plataforma de registro de voluntarios electorales.
           </p>
           <p className="mt-2 text-xs">
             Los datos recopilados se usarán exclusivamente para la coordinación de la fiscalización electoral.

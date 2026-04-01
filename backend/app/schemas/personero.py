@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, field_validator, model_validator
+from pydantic import BaseModel, field_validator, model_validator
 from datetime import datetime
 from typing import Optional
 from uuid import UUID
@@ -13,7 +13,6 @@ class PersoneroCreate(BaseModel):
     apellidos: str
     dni: str
     telefono: str
-    email: EmailStr
     departamento: str
     provincia: str
     distrito: str
@@ -86,7 +85,7 @@ class PersoneroAdmin(BaseModel):
     apellidos: str
     dni: str
     telefono: str
-    email: str
+    email: Optional[str] = None
     departamento: str
     provincia: str
     distrito: str

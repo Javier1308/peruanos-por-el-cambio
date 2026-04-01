@@ -55,14 +55,14 @@ async def exportar_csv(
     output = io.StringIO()
     writer = csv.writer(output)
     writer.writerow([
-        "ID", "Nombres", "Apellidos", "DNI", "Teléfono", "Email",
+        "ID", "Nombres", "Apellidos", "DNI", "Teléfono",
         "Departamento", "Provincia", "Distrito", "Local de Votación",
         "DNI Verificado", "IP Registro", "Fecha Registro"
     ])
 
     for p in personeros:
         writer.writerow([
-            p.id, p.nombres, p.apellidos, p.dni, p.telefono, p.email,
+            p.id, p.nombres, p.apellidos, p.dni, p.telefono,
             p.departamento, p.provincia, p.distrito,
             p.local_votacion or "",
             "Sí" if p.dni_verificado else "No",
@@ -100,7 +100,7 @@ async def exportar_excel(
 
     headers = [
         "ID", "Código de Registro", "Nombres", "Apellidos", "DNI",
-        "Teléfono", "Email", "Departamento", "Provincia", "Distrito",
+        "Teléfono", "Departamento", "Provincia", "Distrito",
         "Local de Votación", "DNI Verificado", "IP Registro", "Fecha Registro",
     ]
 
@@ -122,7 +122,6 @@ async def exportar_excel(
             p.apellidos,
             p.dni,
             p.telefono,
-            p.email,
             p.departamento,
             p.provincia,
             p.distrito,
@@ -131,7 +130,7 @@ async def exportar_excel(
             str(p.ip_registro),
             created_at_naive,
         ])
-        ws.cell(row=row, column=14).number_format = "YYYY-MM-DD HH:MM:SS"
+        ws.cell(row=row, column=13).number_format = "YYYY-MM-DD HH:MM:SS"
 
     for col in ws.columns:
         max_len = max((len(str(cell.value)) if cell.value else 0) for cell in col)

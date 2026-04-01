@@ -40,7 +40,6 @@ async def registrar_personero(
         apellidos=data.apellidos,
         dni=data.dni,
         telefono=data.telefono,
-        email=data.email,
         departamento=data.departamento,
         provincia=data.provincia,
         distrito=data.distrito,

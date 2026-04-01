@@ -12,7 +12,6 @@ export interface RegistroPayload {
   apellidos: string
   dni: string
   telefono: string
-  email: string
   departamento: string
   provincia: string
   distrito: string

@@ -89,10 +89,6 @@ const schema = z.object({
   telefono: z
     .string()
     .regex(/^9\d{8}$/, 'Debe tener 9 dígitos y empezar con 9'),
-  email: z
-    .string()
-    .email('Correo electrónico inválido')
-    .refine((v) => !contienepalabrabloqueada(v.split('@')[0]), 'El correo ingresado no es válido'),
   departamento: z.string().min(1, 'Selecciona un departamento'),
   departamento_id: z.string(),
   provincia: z.string().min(1, 'Selecciona una provincia'),
@@ -108,7 +104,7 @@ const schema = z.object({
 type FormData = z.infer<typeof schema>
 
 const REQUIRED_FIELDS: (keyof FormData)[] = [
-  'nombres', 'apellidos', 'dni', 'telefono', 'email',
+  'nombres', 'apellidos', 'dni', 'telefono',
   'departamento', 'provincia', 'distrito', 'turnstile_token',
 ]
 
@@ -162,7 +158,7 @@ export function FormularioPersonero() {
     resolver: zodResolver(schema),
     defaultValues: {
       nombres: '', apellidos: '', dni: '', telefono: '',
-      email: '', departamento: '', departamento_id: '',
+      departamento: '', departamento_id: '',
       provincia: '', provincia_id: '', distrito: '',
       local_votacion: '', turnstile_token: '',
     },
@@ -190,7 +186,6 @@ export function FormularioPersonero() {
         apellidos: data.apellidos.trim(),
         dni: data.dni,
         telefono: data.telefono,
-        email: data.email.toLowerCase().trim(),
         departamento: data.departamento,
         provincia: data.provincia,
         distrito: data.distrito,
@@ -300,19 +295,6 @@ export function FormularioPersonero() {
             error={errors.telefono?.message}
             {...register('telefono')}
           />
-          <div className="sm:col-span-2">
-            <InputField
-              label="Correo electrónico"
-              id="email"
-              type="email"
-              required
-              placeholder="ejemplo@correo.com"
-              autoComplete="email"
-              inputMode="email"
-              error={errors.email?.message}
-              {...register('email')}
-            />
-          </div>
         </div>
       </fieldset>
 

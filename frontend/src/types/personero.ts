@@ -18,7 +18,6 @@ export interface PersoneroFormData {
   apellidos: string
   dni: string
   telefono: string
-  email: string
   departamento: string
   departamento_id: string
   provincia: string

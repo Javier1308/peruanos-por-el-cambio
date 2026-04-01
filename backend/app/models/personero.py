@@ -18,7 +18,7 @@ class Personero(Base):
     apellidos = Column(String(100), nullable=False)
     dni = Column(String(8), unique=True, nullable=False, index=True)
     telefono = Column(String(9), nullable=False)
-    email = Column(String(255), nullable=False)
+    email = Column(String(255), nullable=True)
     departamento = Column(String(50), nullable=False, index=True)
     provincia = Column(String(50), nullable=False)
     distrito = Column(String(50), nullable=False)
