@@ -126,7 +126,7 @@ export default function App() {
                 Nos roban en las calles, en los ministerios, en las alcaldías y en los gobiernos
                 regionales. <strong className="text-brand-navy">No dejemos que nos roben también los votos.</strong>
               </p>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-2 mb-6">
                 {['Democracia', 'Libertad', 'Transparencia', 'Propiedad privada', 'Anticorrupción'].map((tag) => (
                   <span
                     key={tag}
@@ -136,6 +136,24 @@ export default function App() {
                   </span>
                 ))}
               </div>
+
+              <span className="inline-block text-brand-red text-xs font-bold uppercase tracking-widest mb-2">
+                ¿Cómo votar?
+              </span>
+              <p className="text-gray-600 text-sm leading-relaxed mb-2">
+                Aprende cómo ejercer tu voto correctamente el 12 de abril.
+              </p>
+              <a
+                href="https://www.youtube.com/watch?v=cJ5UuJJRfNQ"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 text-brand-red hover:text-brand-red-dark font-semibold text-sm transition-colors"
+              >
+                <svg className="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/>
+                </svg>
+                Ver video instructivo
+              </a>
             </div>
           </div>
         </div>
@@ -208,7 +226,7 @@ export default function App() {
         <div className="max-w-5xl mx-auto px-4 sm:px-6 text-center text-sm">
           <div className="flex items-center justify-center gap-2 mb-3">
             <PeruFlag />
-            <span className="text-white font-semibold">Defiende Tu Voto</span>
+            <span className="text-white font-semibold">Perú Defiende Tu Voto</span>
           </div>
           <p className="text-gray-500 text-xs mb-2">
             Proyecto gestionado por GESTER LATAM. Todos los derechos reservados © 2026.
